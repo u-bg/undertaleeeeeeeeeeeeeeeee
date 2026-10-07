@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNDERTALE - Verification Gate</title>
+    <style>
+        body { background: black; color: white; font-family: 'Courier New', Courier, monospace; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        #gate { text-align: center; border: 2px solid white; padding: 40px; max-width: 500px; }
+        h1 { font-size: 24px; color: #ff0000; letter-spacing: 2px; }
+        .upload-area { border: 1px dashed #555; padding: 20px; margin: 20px 0; cursor: pointer; transition: 0.3s; }
+        .upload-area:hover { background: #111; border-color: white; }
+        #game-frame { display: none; width: 100vw; height: 100vh; border: none; }
+        .hidden { display: none !important; }
+        button { background: white; color: black; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; }
+    </style>
+<meta property="og:title" content="Student Learning Portal - Educational Resources">
+<meta property="og:description" content="Access your educational materials, study resources, and collaborative learning tools in one place.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#4CAF50">
+</head>
+<body>
+
+    <div id="gate">
+        <h1>VERIFY PURCHASE</h1>
+        <p>This web port requires proof of ownership.<br>Select your <b>data.win</b> file to enter.</p>
+        
+        <div class="upload-area" onclick="document.getElementById('file-input').click()">
+            <span id="file-name">CLICK TO SELECT FILE</span>
+            <input type="file" id="file-input" accept=".win" style="display:none">
+        </div>
+
+        <button id="enter-btn" class="hidden" onclick="unlock()">ENTER GAME</button>
+        <p id="error-msg" style="color: red; display: none;">INVALID DATA FILE: Verify failed.</p>
+    </div>
+
+    <iframe id="game-frame" src=""></iframe>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const fileName = document.getElementById('file-name');
+        const enterBtn = document.getElementById('enter-btn');
+        const errorMsg = document.getElementById('error-msg');
+        const gate = document.getElementById('gate');
+        const gameFrame = document.getElementById('game-frame');
+
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            // We only need the first 4 bytes to check for "FORM"
+            const blob = file.slice(0, 4); 
+
+            reader.onload = function(event) {
+                const buffer = new Uint8Array(event.target.result);
+                // Check for "FORM" header (F=70, O=79, R=82, M=77)
+                const isValid = buffer[0] === 70 && buffer[1] === 79 && buffer[2] === 82 && buffer[3] === 77;
+
+                if (isValid) {
+                    fileName.innerText = "FILE VERIFIED";
+                    fileName.style.color = "#00ff00";
+                    errorMsg.style.display = "none";
+                    enterBtn.classList.remove('hidden');
+                } else {
+                    fileName.innerText = "CLICK TO SELECT FILE";
+                    errorMsg.style.display = "block";
+                    enterBtn.classList.add('hidden');
+                }
+            };
+            reader.readAsArrayBuffer(blob);
+        });
+
+        function unlock() {
+            gate.classList.add('hidden');
+            gameFrame.style.display = "block";
+            // The iframe only loads AFTER the file is verified
+            gameFrame.src = "https://www.inventati.org/burnedprojects/UNDERTALE/";
+        }
+    </script>
+</body>
+</html>
